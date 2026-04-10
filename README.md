@@ -4,8 +4,8 @@ AI-assisted police reporting and hotspot intelligence demo for Dhaka Metropolita
 
 ## Demo & Deployment
 
-- 3-minute demo video (YouTube): https://youtube.com/your-demo-video-link
-- Deployed app link: https://your-deployed-app-link
+- 3-minute demo video (YouTube): https://youtu.be/2lWN2BqfnRU
+- Deployed app link: https://impact-dhaka.netlify.app/
 
 ## Problem
 
