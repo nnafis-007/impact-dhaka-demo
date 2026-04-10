@@ -1,4 +1,4 @@
-const BPC_DATA = [
+export const BPC_DATA = [
   {
     section: "Section 379",
     title: "Theft",

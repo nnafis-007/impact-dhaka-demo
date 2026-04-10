@@ -1,59 +1,54 @@
 POC for Impact Dhaka hackathon
 
-## DMP Shohayok PoC (No Build Step)
+## DMP Shohayok (Modular React PoC)
 
-This repository now includes a full single-page implementation based on the project plan.
+This project is now a modular React + Vite app with routing and separated services for easier navigation and debugging.
 
-## Files
+## Features Added
 
-- `index.html`: Main app (React + Tailwind + jsPDF from CDN)
-- `bpc_data.js`: Penal code reference list used for prompt-based matching
-- `Project-plan.md`: Source PRD and implementation plan
+- Multi-page flow with dummy login page (`/login`) and GD generator page (`/app`)
+- Multi-page flow with dummy login page (`/login`) and report generator page (`/app`)
+- Modular structure (`pages`, `services`, `data`, `components`, `utils`)
+- LLM input validation step before generation
+- Strong Bengali-only report drafting constraints in prompt
+- Groq integration using `GROQ_API_KEY` from `.env`
 
-## Run Locally
+## Setup
 
-1. From the project root, start a simple static server:
-
-```bash
-python3 -m http.server 5500
-```
-
-2. Open:
-
-```text
-http://localhost:5500/index.html
-```
-
-3. Create `.env` in project root with:
+1. Create `.env` in project root:
 
 ```text
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-The frontend PoC auto-loads `GROQ_API_KEY` from `.env`.
+2. Install dependencies:
 
-## Demo Flow
+```bash
+npm install
+```
 
-1. Ensure `.env` has `GROQ_API_KEY`.
-2. Click any demo scenario button (A/B/C), or type incident text.
-3. Click `Generate GD`.
-4. Review entities, BPC matches, and GD draft.
-5. Edit entities to trigger live re-generation.
-6. Click `Export PDF` for printable output.
+3. Run development server:
 
-## Implemented Plan Coverage
+```bash
+npm run dev
+```
 
-- Step 1: Single `index.html` with CDN dependencies
-- Step 2: `bpc_data.js` with 25+ sections including Nari O Shishu sections
-- Step 3: 3-panel UI (Input / Entities / Draft)
-- Step 4: `extractEntities(incidentText)` API flow with strict JSON parse (Groq)
-- Step 5: `generateGDReport(incidentText, entities)` with embedded BPC reference JSON (Groq)
-- Step 6: Tailwind polish, loading spinner, green match badges
-- Step 7: 3 hardcoded reproducible demo scenarios
-- Step 8: jsPDF export with letterhead, placeholders, signature/stamp lines
-- Step 9: Impact metrics section
-- Step 10: try/catch and user-facing error handling for malformed responses
+4. Open the Vite URL (typically `http://localhost:5173`).
+
+## Routes
+
+- `/login`: dummy login form (no validation; login button navigates to app)
+- `/app`: police report generation workspace
+- `/reports`: generated report records in tabular format with investigation status
+
+## Generation Workflow
+
+1. Officer submits incident text.
+2. LLM validation checks minimum required report information.
+3. If valid, entities are extracted.
+4. BPC sections are matched and Bengali report draft is generated.
+5. PDF export is available from the app page.
 
 ## Important Note
 
-For PoC speed, the frontend calls Groq API directly from browser JavaScript. This exposes the API key in client requests and should not be used in production.
+This remains frontend-only for proof-of-concept speed. API usage is still client-side and not suitable for production security.
