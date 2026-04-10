@@ -109,10 +109,9 @@ export async function generatePoliceReport(incidentText, entities) {
   ].join(" ");
 
   const fiveWRule = [
-    "The report_draft must explicitly follow 5W structure in this exact order with clear Bengali labels:",
+    "The report_draft must follow 5W structure:",
     "1) কে (Who), 2) কী (What), 3) কখন (When), 4) কোথায় (Where), 5) কেন/কিভাবে (Why/How).",
-    "Each section must contain concrete incident-specific content, not generic placeholder text.",
-    "Do not output only a '5W' title; populate all five subsections clearly."
+    "Each section must contain concrete incident-specific content, not generic placeholder text."
   ].join(" ");
 
   const systemPrompt = [
