@@ -1,6 +1,44 @@
+function normalizeItem(item) {
+  if (item === null || item === undefined) {
+    return "";
+  }
+
+  if (typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
+    return String(item).trim();
+  }
+
+  if (Array.isArray(item)) {
+    return item.map((value) => normalizeItem(value)).filter(Boolean).join(" ").trim();
+  }
+
+  if (typeof item === "object") {
+    const candidate =
+      item.type ||
+      item.vehicle_type ||
+      item.vehicle ||
+      item.name ||
+      item.title ||
+      item.model ||
+      item.value ||
+      "";
+
+    if (candidate) {
+      return String(candidate).trim();
+    }
+
+    return Object.values(item)
+      .map((value) => normalizeItem(value))
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+  }
+
+  return "";
+}
+
 export function toArrayValue(value) {
   if (Array.isArray(value)) {
-    return value;
+    return value.map((item) => normalizeItem(item)).filter(Boolean);
   }
   if (!value) {
     return [];

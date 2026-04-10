@@ -45,6 +45,20 @@ function normalizeEntities(input = {}) {
   output.victim_names = toArrayValue(output.victim_names);
   output.evidence_mentioned = toArrayValue(output.evidence_mentioned);
   output.vehicles_mentioned = toArrayValue(output.vehicles_mentioned);
+
+  const typeText = String(output.incident_type || "").toLowerCase();
+  const inferredVehicles = [
+    ["motorcycle", ["motorcycle", "motorbike", "bike", "মোটরসাইকেল"]],
+    ["bus", ["bus", "বাস"]],
+    ["rickshaw", ["rickshaw", "রিকশা"]],
+    ["car", ["car", "গাড়ি", "গাড়ি"]],
+    ["truck", ["truck", "ট্রাক"]],
+    ["cng", ["cng", "auto", "অটোরিকশা"]]
+  ]
+    .filter(([, keywords]) => keywords.some((keyword) => typeText.includes(keyword)))
+    .map(([name]) => name);
+
+  output.vehicles_mentioned = [...new Set([...(output.vehicles_mentioned || []), ...inferredVehicles])];
   return output;
 }
 
@@ -90,6 +104,7 @@ export async function extractEntities(incidentText) {
     "Return ONLY valid JSON with these fields:",
     "complainant_name, accused_names (array), victim_names (array), location_area, location_thana, incident_date, incident_time, incident_type, evidence_mentioned (array), vehicles_mentioned (array).",
     "If a field is not mentioned, use null for scalar fields and [] for array fields.",
+    "All array elements must be plain strings only. Never return objects inside arrays.",
     "No markdown, no explanations."
   ].join("\n");
 
@@ -109,9 +124,9 @@ export async function generatePoliceReport(incidentText, entities) {
   ].join(" ");
 
   const fiveWRule = [
-    "The report_draft must follow 5W structure:",
-    "1) কে (Who), 2) কী (What), 3) কখন (When), 4) কোথায় (Where), 5) কেন/কিভাবে (Why/How).",
-    "Each section must contain concrete incident-specific content, not generic placeholder text."
+    "The report_draft must naturally integrate the 5W information (who, what, when, where, why/how) in fluent narrative form.",
+    "Do not explicitly write section labels like 'কে:', 'কী:', 'কখন:', 'কোথায়:', 'কেন/কিভাবে:' or '5W'.",
+    "Include all five aspects implicitly through complete and concrete incident details."
   ].join(" ");
 
   const systemPrompt = [

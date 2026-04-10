@@ -3,6 +3,15 @@ import seedRecords from "../data/reportRecords.json";
 const STORAGE_KEY = "dmp_report_records";
 const STORAGE_VERSION_KEY = "dmp_report_records_version";
 const STORAGE_VERSION = "2";
+export const REPORT_RECORDS_UPDATED_EVENT = "dmp-report-records-updated";
+
+export function resetReportRecordsOnAppStart() {
+  const seeded = [...seedRecords];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+  localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION);
+  window.dispatchEvent(new Event(REPORT_RECORDS_UPDATED_EVENT));
+  return seeded;
+}
 
 function readStoredRecords() {
   try {
@@ -40,6 +49,7 @@ function readStoredRecords() {
 
 function writeStoredRecords(records) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  window.dispatchEvent(new Event(REPORT_RECORDS_UPDATED_EVENT));
 }
 
 export function getAllReportRecords() {

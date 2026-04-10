@@ -1,3 +1,5 @@
+import { jsonrepair } from "jsonrepair";
+
 function escapeControlCharsInQuotedStrings(input) {
   let result = "";
   let inString = false;
@@ -75,8 +77,20 @@ export function parseJsonResponse(rawText) {
       try {
         return JSON.parse(jsonSlice);
       } catch {
-        return JSON.parse(escapeControlCharsInQuotedStrings(jsonSlice));
+        const escaped = escapeControlCharsInQuotedStrings(jsonSlice);
+        try {
+          return JSON.parse(escaped);
+        } catch {
+          return JSON.parse(jsonrepair(escaped));
+        }
       }
+    }
+
+    // Last-resort repair attempt for outputs that contain malformed arrays/objects.
+    try {
+      return JSON.parse(jsonrepair(trimmed));
+    } catch {
+      // keep behavior below
     }
 
     throw new Error("The API did not return valid JSON.");

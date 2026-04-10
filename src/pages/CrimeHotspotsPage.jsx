@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import L from "leaflet";
-import { getAllReportRecords } from "../services/reportStore";
+import {
+  getAllReportRecords,
+  REPORT_RECORDS_UPDATED_EVENT
+} from "../services/reportStore";
 import { askPoliceReportChatbot } from "../services/chatService";
 
 const DHAKA_CENTER = [23.8103, 90.4125];
@@ -27,8 +30,8 @@ function findCoordinates(record) {
 
   if (!matched) {
     return {
-      lat: DHAKA_CENTER[0],
-      lng: DHAKA_CENTER[1],
+      lat: 23,
+      lng: 90,
       label: "Dhaka (Approximate)"
     };
   }
@@ -90,7 +93,8 @@ export default function CrimeHotspotsPage() {
   const navigate = useNavigate();
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const records = useMemo(() => getAllReportRecords(), []);
+  const markersLayerRef = useRef(null);
+  const [records, setRecords] = useState(() => getAllReportRecords());
   const { incidents, hotspots } = useMemo(() => toHotspotData(records), [records]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -111,7 +115,24 @@ export default function CrimeHotspotsPage() {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors"
     }).addTo(map);
+    markersLayerRef.current = L.layerGroup().addTo(map);
+    mapInstanceRef.current = map;
 
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markersLayerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const markersLayer = markersLayerRef.current;
+    if (!map || !markersLayer) {
+      return;
+    }
+
+    markersLayer.clearLayers();
     hotspots.forEach((spot) => {
       const color = spot.count >= 3 ? "#b91c1c" : spot.count === 2 ? "#d97706" : "#2563eb";
       const marker = L.circleMarker([spot.lat, spot.lng], {
@@ -120,7 +141,7 @@ export default function CrimeHotspotsPage() {
         weight: 2,
         fillColor: color,
         fillOpacity: 0.35
-      }).addTo(map);
+      }).addTo(markersLayer);
 
       marker.bindPopup(
         `<strong>${spot.areaLabel}</strong><br/>Incidents: ${spot.count}<br/>Types: ${spot.types.join(", ") || "N/A"}`
@@ -130,15 +151,26 @@ export default function CrimeHotspotsPage() {
     if (hotspots.length > 0) {
       const bounds = L.latLngBounds(hotspots.map((spot) => [spot.lat, spot.lng]));
       map.fitBounds(bounds.pad(0.25));
+    } else {
+      map.setView(DHAKA_CENTER, 12);
+    }
+  }, [hotspots]);
+
+  useEffect(() => {
+    function refreshRecords() {
+      setRecords(getAllReportRecords());
     }
 
-    mapInstanceRef.current = map;
+    window.addEventListener(REPORT_RECORDS_UPDATED_EVENT, refreshRecords);
+    window.addEventListener("storage", refreshRecords);
+    document.addEventListener("visibilitychange", refreshRecords);
 
     return () => {
-      map.remove();
-      mapInstanceRef.current = null;
+      window.removeEventListener(REPORT_RECORDS_UPDATED_EVENT, refreshRecords);
+      window.removeEventListener("storage", refreshRecords);
+      document.removeEventListener("visibilitychange", refreshRecords);
     };
-  }, [hotspots]);
+  }, []);
 
   async function handleSend() {
     const prompt = input.trim();
