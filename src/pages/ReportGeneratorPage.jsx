@@ -11,6 +11,7 @@ import {
 import { getGroqApiKey, initializeGroqApiKey } from "../services/groqClient";
 import { exportReportToPdf } from "../services/pdfService";
 import { saveGeneratedReportRecord } from "../services/reportStore";
+import { formatLegalSection } from "../utils/legal";
 import { toArrayValue } from "../utils/text";
 
 const ENTITY_FIELDS = [
@@ -48,7 +49,7 @@ export default function ReportGeneratorPage() {
 
   const selectedBpcSummary = useMemo(() => {
     const active = bpcMatches.filter((item) => selectedSections[item.section]);
-    return active.map((item) => `${item.section} (${item.title})`).join(", ");
+    return active.map((item) => `${formatLegalSection(item.section)} (${item.title})`).join(", ");
   }, [bpcMatches, selectedSections]);
 
   async function runGeneration(text, providedEntities = null, source = "manual") {
@@ -274,7 +275,7 @@ export default function ReportGeneratorPage() {
                     }
                   />
                   <div>
-                    <strong>✓ {match.section} - {match.title}</strong>
+                    <strong>✓ {formatLegalSection(match.section)} - {match.title}</strong>
                     <p>{match.justification}</p>
                   </div>
                 </label>

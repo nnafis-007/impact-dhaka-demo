@@ -1,4 +1,5 @@
 import { callGroq } from "./groqClient";
+import { formatLegalSections } from "../utils/legal";
 
 function isBengaliQuery(text) {
   return /[\u0980-\u09FF]/.test(String(text || ""));
@@ -14,7 +15,7 @@ function buildReportContext(records) {
     .map((record, index) => {
       const location = [record.location_area, record.location_thana].filter(Boolean).join(", ");
       const sections = Array.isArray(record.applicable_sections)
-        ? record.applicable_sections.join(", ")
+        ? formatLegalSections(record.applicable_sections).join(", ")
         : "";
 
       return [

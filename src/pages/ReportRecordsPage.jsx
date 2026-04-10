@@ -4,6 +4,7 @@ import {
   getAllReportRecords,
   updateInvestigationStatus
 } from "../services/reportStore";
+import { formatLegalSections } from "../utils/legal";
 
 const STATUS_OPTIONS = ["Pending", "In progress", "Done"];
 
@@ -88,7 +89,7 @@ export default function ReportRecordsPage() {
                         .filter(Boolean)
                         .join(", ")}
                     </td>
-                    <td>{(record.applicable_sections || []).join(", ") || "-"}</td>
+                    <td>{formatLegalSections(record.applicable_sections || []).join(", ") || "-"}</td>
                     <td>
                       <select
                         className={statusClass(record.investigation_status)}

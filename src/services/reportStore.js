@@ -1,4 +1,5 @@
 import seedRecords from "../data/reportRecords.json";
+import { formatLegalSections } from "../utils/legal";
 
 const STORAGE_KEY = "dmp_report_records";
 const STORAGE_VERSION_KEY = "dmp_report_records_version";
@@ -37,6 +38,7 @@ function readStoredRecords() {
 
     return parsed.map((record) => ({
       ...record,
+      applicable_sections: formatLegalSections(record.applicable_sections || []),
       investigation_status:
         record.investigation_status === "Pendign"
           ? "Pending"
@@ -68,7 +70,7 @@ export function saveGeneratedReportRecord({ incidentText, entities, matches, rep
     location_thana: entities.location_thana || "",
     incident_date: entities.incident_date || "",
     incident_time: entities.incident_time || "",
-    applicable_sections: (matches || []).map((item) => item.section),
+    applicable_sections: formatLegalSections((matches || []).map((item) => item.section)),
     report_draft: reportDraft,
     investigation_status: "Pending"
   };

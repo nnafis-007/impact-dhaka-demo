@@ -1,5 +1,6 @@
 import { BPC_DATA } from "../data/bpcData";
 import { parseJsonResponse } from "../utils/json";
+import { formatLegalSection } from "../utils/legal";
 import { isMostlyBengali, toArrayValue } from "../utils/text";
 import { callGroq } from "./groqClient";
 
@@ -120,7 +121,7 @@ export async function generatePoliceReport(incidentText, entities) {
   const strictBengaliRule = [
     "The report_draft MUST be written in Bangla (Bengali script) only.",
     "Do not write English sentences in report_draft.",
-    "Only legal section labels/codes may contain English numerals/roman text (e.g., Section 379)."
+    "Legal section mentions should use Bangla style like ধারা ৩৭৯."
   ].join(" ");
 
   const fiveWRule = [
@@ -153,7 +154,12 @@ export async function generatePoliceReport(incidentText, entities) {
 
   const parsed = parseJsonResponse(raw);
   const report = {
-    bpc_matches: Array.isArray(parsed.bpc_matches) ? parsed.bpc_matches : [],
+    bpc_matches: Array.isArray(parsed.bpc_matches)
+      ? parsed.bpc_matches.map((item) => ({
+          ...item,
+          section: formatLegalSection(item?.section)
+        }))
+      : [],
     report_draft: parsed.report_draft || ""
   };
 
