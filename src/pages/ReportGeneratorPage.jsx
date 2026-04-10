@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ValidationAlert from "../components/ValidationAlert";
 import {
   DEFAULT_ENTITIES,
@@ -11,6 +11,7 @@ import {
 import { getGroqApiKey, initializeGroqApiKey } from "../services/groqClient";
 import { exportReportToPdf } from "../services/pdfService";
 import { saveGeneratedReportRecord } from "../services/reportStore";
+import { clearCurrentUsername, getCurrentUsername } from "../services/authService";
 import { formatLegalSection } from "../utils/legal";
 import { toArrayValue } from "../utils/text";
 
@@ -29,7 +30,6 @@ const ENTITY_FIELDS = [
 
 export default function ReportGeneratorPage() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [incidentText, setIncidentText] = useState("");
   const [entities, setEntities] = useState({ ...DEFAULT_ENTITIES });
@@ -45,7 +45,7 @@ export default function ReportGeneratorPage() {
   const [lastSavedSignature, setLastSavedSignature] = useState("");
   const regenTimerRef = useRef(null);
 
-  const username = location.state?.username || "Duty Officer";
+  const username = getCurrentUsername() || "Duty Officer";
 
   const selectedBpcSummary = useMemo(() => {
     const active = bpcMatches.filter((item) => selectedSections[item.section]);
@@ -192,6 +192,11 @@ export default function ReportGeneratorPage() {
     }
   }
 
+  function handleLogout() {
+    clearCurrentUsername();
+    navigate("/login");
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -203,7 +208,7 @@ export default function ReportGeneratorPage() {
           <span className="status-pill">Signed in: {username}</span>
           <button onClick={() => navigate("/reports")}>Report Records</button>
           <button onClick={() => navigate("/hotspots")}>Hotspots</button>
-          <button onClick={() => navigate("/login")}>Logout</button>
+          <button onClick={handleLogout}>Logout</button>
         </div>
       </header>
 

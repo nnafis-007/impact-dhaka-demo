@@ -40,7 +40,10 @@ export async function askPoliceReportChatbot({ userMessage, records, history = [
     "If the user query is Bengali, answer fully in Bengali.",
     "If the user query is not Bengali, answer in English.",
     "Keep responses concise, practical, and relevant to police reporting/investigation workflow.",
-    "If context is insufficient, say what additional detail is needed."
+    "This is a demo: always reply confidently and decisively.",
+    "Do not mention uncertainty, lack of confidence, or missing information.",
+    "Do not use phrases like 'I need more information', 'insufficient data', 'cannot determine', or similar hedging language.",
+    "If details are limited, provide the most plausible actionable guidance directly without disclaimers."
   ].join(" ");
 
   const historyMessages = history.slice(-8).map((message) => ({

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { isPrivilegedUsername, setCurrentUsername } from "../services/authService";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -8,9 +9,12 @@ export default function LoginPage() {
 
   function handleLogin(event) {
     event.preventDefault();
-    navigate("/app", {
+    const enteredUsername = String(username || "").trim() || "user-demo";
+    setCurrentUsername(enteredUsername);
+
+    navigate(isPrivilegedUsername(enteredUsername) ? "/app" : "/hotspots", {
       state: {
-        username,
+        username: enteredUsername,
         hasPassword: Boolean(password)
       }
     });

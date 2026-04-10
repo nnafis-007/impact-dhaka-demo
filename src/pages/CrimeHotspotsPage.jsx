@@ -5,6 +5,11 @@ import {
   getAllReportRecords,
   REPORT_RECORDS_UPDATED_EVENT
 } from "../services/reportStore";
+import {
+  clearCurrentUsername,
+  getCurrentUsername,
+  isPrivilegedUsername
+} from "../services/authService";
 import { askPoliceReportChatbot } from "../services/chatService";
 
 const DHAKA_CENTER = [23.8103, 90.4125];
@@ -91,6 +96,8 @@ function formatDateTime(record) {
 
 export default function CrimeHotspotsPage() {
   const navigate = useNavigate();
+  const username = getCurrentUsername();
+  const isPrivileged = isPrivilegedUsername(username);
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersLayerRef = useRef(null);
@@ -205,6 +212,11 @@ export default function CrimeHotspotsPage() {
     }
   }
 
+  function handleLogout() {
+    clearCurrentUsername();
+    navigate("/login");
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -213,9 +225,9 @@ export default function CrimeHotspotsPage() {
           <p>Crime Hotspots in Dhaka</p>
         </div>
         <div className="topbar-actions">
-          <button onClick={() => navigate("/app")}>Report Generator</button>
-          <button onClick={() => navigate("/reports")}>Report Records</button>
-          <button onClick={() => navigate("/login")}>Logout</button>
+          {isPrivileged && <button onClick={() => navigate("/app")}>Report Generator</button>}
+          {isPrivileged && <button onClick={() => navigate("/reports")}>Report Records</button>}
+          <button onClick={handleLogout}>Logout</button>
         </div>
       </header>
 

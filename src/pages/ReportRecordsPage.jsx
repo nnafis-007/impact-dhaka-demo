@@ -4,6 +4,7 @@ import {
   getAllReportRecords,
   updateInvestigationStatus
 } from "../services/reportStore";
+import { clearCurrentUsername } from "../services/authService";
 import { formatLegalSections } from "../utils/legal";
 
 const STATUS_OPTIONS = ["Pending", "In progress", "Done"];
@@ -42,6 +43,11 @@ export default function ReportRecordsPage() {
     setRecords(updated);
   }
 
+  function handleLogout() {
+    clearCurrentUsername();
+    navigate("/login");
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -52,7 +58,7 @@ export default function ReportRecordsPage() {
         <div className="topbar-actions">
           <button onClick={() => navigate("/app")}>Back To Generator</button>
           <button onClick={() => navigate("/hotspots")}>Hotspots</button>
-          <button onClick={() => navigate("/login")}>Logout</button>
+          <button onClick={handleLogout}>Logout</button>
         </div>
       </header>
 

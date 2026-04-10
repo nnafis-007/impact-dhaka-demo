@@ -1,67 +1,106 @@
-POC for Impact Dhaka hackathon
+# DMP Shohayok
 
-## DMP Shohayok (Modular React PoC)
+AI-assisted police reporting and hotspot intelligence demo for Dhaka Metropolitan Police workflow.
 
-This project is now a modular React + Vite app with routing and separated services for easier navigation and debugging.
+## Demo & Deployment
 
-## Features Added
+- 3-minute demo video (YouTube): https://youtube.com/your-demo-video-link
+- Deployed app link: https://your-deployed-app-link
 
-- Multi-page flow with dummy login page (`/login`) and GD generator page (`/app`)
-- Multi-page flow with dummy login page (`/login`) and report generator page (`/app`)
-- Modular structure (`pages`, `services`, `data`, `components`, `utils`)
-- LLM input validation step before generation
-- Strong Bengali-only report drafting constraints in prompt
-- Multi-provider LLM support: Groq, OpenRouter, Azure Inference (GitHub Models)
+## Problem
 
-## Setup
+Manual police reporting creates three major operational bottlenecks:
 
-1. Create `.env` in project root (choose one provider):
+- Time drain on officers: incident documentation, legal code lookup, formatting, and review can take 30-60 minutes per report, reducing field availability.
+- Legal complexity: officers must identify applicable laws from large legal references, and missing or incorrect code mapping can hurt case quality.
+- Consistency and quality gaps: manual drafting can lead to format variability, omitted details, and transcription mistakes in names, dates, locations, or evidence.
+
+At scale, these issues increase administrative burden, reduce response capacity, and weaken downstream investigation and prosecution workflows.
+
+## Solution
+
+DMP Shohayok follows an intelligent end-to-end automation approach inspired by modern NLP/ML police reporting systems:
+
+- Incident-to-structure pipeline: converts free-text incident narratives into structured entities (people, location, date/time, vehicles, evidence).
+- Automated legal mapping: suggests likely applicable legal sections and presents them in Bangla legal style (e.g., ধারা ৩৭৯).
+- Standardized report generation: produces consistent, department-style narrative reports with integrated investigative essentials.
+- Operational interface: supports record tracking, hotspot visualization, and conversational querying for quick analysis and decision support.
+
+The goal is to reduce report preparation time, improve report consistency, and help officers focus more on policing and investigation rather than repetitive documentation work.
+
+## Key Features
+
+- Dummy login with role-based page access:
+  - `admin` or `police`: full app access
+  - usernames starting with `user` (and other non-privileged usernames): hotspot page + chatbot only
+- Incident validation before report generation
+- Structured entity extraction (complainant, location, date/time, incident type, vehicles, evidence)
+- Bengali report generation with integrated 5W information in narrative form
+- Legal section matching and Bangla section rendering (`Section 329` -> `ধারা ৩২৯`)
+- Export report to PDF
+- Report records table with investigation status (`Pending`, `In progress`, `Done`)
+- Crime hotspot map (OpenStreetMap + Leaflet) with right-side incident summary
+- Floating chatbot on hotspot page using report-store context
+- Multi-provider LLM support:
+  - Groq
+  - OpenRouter
+  - Azure Inference (GitHub Models endpoint)
+
+## Target Users
+
+- Duty officers at police stations
+- Investigation officers
+- General People for information transparency
+- Supervisors who monitor incident trends and report quality
+
+## Setup Instructions
+
+### 1. Clone and install
+
+```bash
+git clone <your-repo-url>
+cd DMP-shohayok
+npm install
+```
+
+### 2. Configure environment
+
+Create a `.env` file in project root and choose one provider:
 
 ```text
 # Provider selection: groq | openrouter | azure
 LLM_PROVIDER=groq
 
+# GROQ
 GROQ_API_KEY=your_groq_api_key_here
 
 # OR OpenRouter
 # LLM_PROVIDER=openrouter
-# OPENROUTER_API_KEY=your_openrouter_key_here
+# OPENROUTER_API_KEY=your_openrouter_api_key_here
 
-# OR Azure Inference via GitHub Models
+# OR Azure Inference (GitHub Models)
 # LLM_PROVIDER=azure
 # GITHUB_TOKEN=your_github_token_here
 # AZURE_INFERENCE_ENDPOINT=https://models.github.ai/inference
 # AZURE_MODEL_NAME=meta/Llama-3.3-70B-Instruct
 ```
 
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Run development server:
+### 3. Run in development
 
 ```bash
 npm run dev
 ```
 
-4. Open the Vite URL (typically `http://localhost:5173`).
+Open the Vite URL shown in terminal (usually `http://localhost:5173`).
 
-## Routes
+### 4. Production build
 
-- `/login`: dummy login form (no validation; login button navigates to app)
-- `/app`: police report generation workspace
-- `/reports`: generated report records in tabular format with investigation status
+```bash
+npm run build
+npm run preview
+```
 
-## Generation Workflow
+## Notes
 
-1. Officer submits incident text.
-2. LLM validation checks minimum required report information.
-3. If valid, entities are extracted.
-4. BPC sections are matched and Bengali report draft is generated.
-5. PDF export is available from the app page.
-
-## Important Note
-
-This remains frontend-only for proof-of-concept speed. API usage is still client-side and not suitable for production security.
+- This is a frontend-first demo for rapid validation.
+- API keys are used client-side in demo mode; for production, move provider calls to a secure backend.
