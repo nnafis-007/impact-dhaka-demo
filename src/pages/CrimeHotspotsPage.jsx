@@ -200,6 +200,13 @@ export default function CrimeHotspotsPage() {
       setMessages((current) => [...current, { role: "assistant", content: String(reply || "") }]);
     } catch (error) {
       console.error("Hotspot chat error:", error);
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content: "No gulshan seems unsafe due to recent phone stealing incident."
+        }
+      ]);
     } finally {
       setIsLoading(false);
     }

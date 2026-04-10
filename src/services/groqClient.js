@@ -44,6 +44,33 @@ let cachedApiKey =
       ? injectedAzureToken
       : injectedGroqApiKey;
 
+function normalizeAssistantContent(content) {
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((item) => {
+        if (typeof item === "string") {
+          return item;
+        }
+        if (item && typeof item === "object") {
+          return item.text || item.content || "";
+        }
+        return "";
+      })
+      .join("")
+      .trim();
+  }
+
+  if (content && typeof content === "object") {
+    return String(content.text || content.content || "").trim();
+  }
+
+  return "";
+}
+
 function maskKey(key) {
   if (!key) {
     return "<empty>";
@@ -110,7 +137,7 @@ export async function callGroq(messages, options = {}) {
         max_tokens: options.maxTokens || 1800,
         temperature: options.temperature ?? 0.1,
         top_p: 1,
-        stream: true,
+        stream: false,
         messages
       })
     });
@@ -121,7 +148,7 @@ export async function callGroq(messages, options = {}) {
     }
 
     const json = await response.json();
-    const content = json?.choices?.[0]?.message?.content || "";
+    const content = normalizeAssistantContent(json?.choices?.[0]?.message?.content);
 
     if (!String(content).trim()) {
       throw new Error("Empty response from OpenRouter.");
@@ -153,7 +180,7 @@ export async function callGroq(messages, options = {}) {
     }
 
     const json = await response.json();
-    const content = json?.choices?.[0]?.message?.content || "";
+    const content = normalizeAssistantContent(json?.choices?.[0]?.message?.content);
 
     if (!String(content).trim()) {
       throw new Error("Empty response from Azure Inference provider.");
@@ -185,7 +212,7 @@ export async function callGroq(messages, options = {}) {
   }
 
   const json = await response.json();
-  const content = json?.choices?.[0]?.message?.content || "";
+  const content = normalizeAssistantContent(json?.choices?.[0]?.message?.content);
 
   if (!String(content).trim()) {
     throw new Error("Empty response from Groq.");

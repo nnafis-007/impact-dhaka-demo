@@ -1,12 +1,32 @@
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import ReportGeneratorPage from "./pages/ReportGeneratorPage";
 import ReportRecordsPage from "./pages/ReportRecordsPage";
 import CrimeHotspotsPage from "./pages/CrimeHotspotsPage";
-import { getCurrentUsername, isPrivilegedUsername } from "./services/authService";
+import {
+  AUTH_CHANGED_EVENT,
+  getCurrentUsername,
+  isPrivilegedUsername
+} from "./services/authService";
 
 export default function App() {
-  const username = getCurrentUsername();
+  const [username, setUsername] = useState(() => getCurrentUsername());
+
+  useEffect(() => {
+    function syncAuthState() {
+      setUsername(getCurrentUsername());
+    }
+
+    window.addEventListener(AUTH_CHANGED_EVENT, syncAuthState);
+    window.addEventListener("storage", syncAuthState);
+
+    return () => {
+      window.removeEventListener(AUTH_CHANGED_EVENT, syncAuthState);
+      window.removeEventListener("storage", syncAuthState);
+    };
+  }, []);
+
   const isLoggedIn = Boolean(username);
   const isPrivileged = isPrivilegedUsername(username);
 
